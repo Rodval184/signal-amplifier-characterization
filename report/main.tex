@@ -1,0 +1,881 @@
+%%% Practica 5%%
+
+\documentclass[10pt, letter, twocolumn]{article}
+\usepackage[top=25mm, bottom=25mm, left=19mm, right=19mm]{geometry}
+\usepackage{amsfonts, amsmath, amssymb}
+\usepackage{titlesec} %Customize chapters, sections and subsections
+\usepackage[justification=centering]{caption} %Center figure captions
+\usepackage{mathptmx} %Times font family
+\usepackage{sectsty} %Allows us to change the font size of section headings including the number section not just the title which is what, say, the \normalsize command does. This package also requieres the \sectionfont command defined below
+\usepackage{indentfirst} %Indents paragraphs
+\usepackage{multirow} %To combine table cells, especifically rows
+\usepackage[flushleft]{threeparttable} %For table footnotes
+\usepackage{graphicx}
+\usepackage[font=footnotesize]{caption} %Font size of "Figure" for all pics
+\captionsetup[table]{
+	labelsep=newline,
+	justification=centering,
+}
+\usepackage{booktabs}
+\usepackage{array}    
+\usepackage{physics}
+\usepackage{enumerate}
+\usepackage{color} %For colored text
+\usepackage{dirtytalk} %Used for quotation marks, since just using "" in other LaTex editors will cause errors. The command for quotation marks is \say{}
+\usepackage{blindtext} %Fake text
+\usepackage[spanish, english]{babel}
+\usepackage{nopageno} %Erase page numbers
+\usepackage{floatrow}
+\usepackage{siunitx}
+\bibliographystyle{ieeetr}
+
+\sisetup{
+	output-decimal-marker = {.},  % usar punto decimal
+	round-mode = places,          % redondear/forzar número de decimales
+	round-precision = 2           % cantidad de decimales que quieres
+}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{positioning}
+\usetikzlibrary{calc}
+
+
+
+\floatsetup[table]{capposition=top}
+
+\setlength{\columnsep}{6mm} %column seperation
+
+\sectionfont{\fontsize{10}{12}\selectfont\normalfont\centering}
+
+\setlength{\arrayrulewidth}{0.5mm} %Thickness for table borders
+
+\let\OLDthebibliography\thebibliography
+\renewcommand\thebibliography[1]{
+	\OLDthebibliography{#1}
+	\setlength{\parskip}{0pt}
+	\setlength{\itemsep}{0pt plus 0.3ex}
+} %Erase spacing between each bibitem reference
+
+\renewcommand{\thesection}{\Roman{section}.} %This changes the standard numbering of the article sections to Roman numerals. If you want to have the standard numbering then erase this command as well as line 33.
+\renewcommand{\thesubsection}{\thesection.\Roman{subsection}} %This preserves the Roman numeral numbering for subsections. If you want a subsubsection then a new command to preserve the Roman numbering must be introduced.
+\addto\captionsenglish{\renewcommand{\figurename}{Fig.}}
+\addto\captionsenglish{\renewcommand{\tablename}{TABLA}}
+\addto\captionsenglish{\renewcommand{\refname}{REFERENCIAS}}
+
+
+
+\title{\textbf{Contador Geiger-Müller}}
+\author{{\large Huerta Carmona Edith$^{1}$, Rodríguez Valdez Benjamín$^{2}$ \vspace{-0.55ex}}\\
+	\normalsize $^{1}$Departamento de Física, ESFM-IPN, México CDMX, \vspace{-0.55ex}\\ 
+	\vspace{-1.8ex} \normalsize $^{2}$Laboratorio de Física Avanzada, ESFM-IPN, México CDMX}
+%\date{\today}
+\date{\normalsize  E-mail: ehuertac1600@alumno.ipn.mx$^{1}$, \quad brodriguezv1701@alumno.ipn.mx $^{2}$ \quad }
+
+
+
+\begin{document}
+	\maketitle
+	
+	{\small \noindent \textit{Resumen} --- {En esta práctica se llevó a cabo el estudio experimental de un contador Geiger–Müller para analizar su funcionamiento frente a la radiación ionizante. Primero se midió la radiación de fondo mediante conteos repetidos, con el fin de observar las variaciones  y comparar los equipos de medición (Ingles y Frances). Después se obtuvo la curva característica del detector, identificando la región de meseta y el voltaje de operación. Finalmente, se analizaron las señales del detector para estudiar el tiempo muerto, la recuperación y los tiempos de subida y bajada, lo que permitió determinar las condiciones adecuadas de operación, esto con Cs-137.
+	} }
+	
+	\vspace{0.2cm}
+	
+	{\small \noindent \textit{Palabras Clave} -- {Geiger–Müller, meseta, curva característica, tiempo muerto, recuperación }}
+	
+	\vspace{0.6cm}
+	
+	{\small \noindent \textit{Abstract} --- \textbf{In this experiment, a Geiger-Müller counter was tested to analyze its performance under ionizing radiation. First, background radiation was measured using repeated counts to observe variations and compare the measuring equipment (English and French). Next, the detector's characteristic curve was obtained, identifying the plateau region and the operating voltage. Finally, the detector signals were analyzed to study dead time, recovery time, and rise and fall times, allowing for the determination of optimal operating conditions, This with Cs-137.}}
+	
+	\vspace{0.2cm}
+	
+	{\small \noindent \textit{Keywords} -- \textbf{Geiger-Müller, characteristic curve, plateau, timeout, recovery}}
+	
+	
+	\section{INTRODUCCIÓN}
+	\begin{enumerate}
+		\item [I.] \textit{Contexto histórico}
+	\end{enumerate}
+	La investigación de los rayos cósmicos y su radiación comenzó en 1912 cuando Viktor Hess demostró que la radiación residual que existía en la superficie de la Tierra y que aumentaba a medida que se ascendía en altura, era de origen extraterrestre.
+	Durante los primeros años todas las investigaciones se llevaron a cabo principalmente con electroscopios, pero la revolución tecnológica estaba por alcanzar a la investigación de los rayos cósmicos, de esta forma surgió un aparato sumamente importante para la detección de la radiación que fue el contador Geiger-Müller.\\
+    
+	El contador Geiger lo inventó en 1908 el físico alemán Hans Geiger mientras trabajaba con Ernest Rutherford, el descubridor del núcleo atómico, en la detección de partículas alfa. Sin embargo, los primeros modelos eran muy rudimentarios y no era fácil hacer detecciones con ellos. El contador fue realmente útil en 1928, cuando Geiger y uno de sus estudiantes de doctorado, Walter Müller, le introdujeron una mejora crítica: el tubo Geiger Müller. Este tubo tiene dos componentes principales: un cilindro exterior metálico y cerrado que aísla el interior del tubo, y un alambre en el centro del tubo. Para detectar partículas hay que inducir una gran diferencia de potencial eléctrico entre la cubierta exterior y el alambre en el centro, o en	términos más sencillos, ponemos un exceso de carga negativa en el tubo y un exceso de carga positiva en el alambre.\\
+	
+	El contador Geiger–Müller es capaz de detectar distintos tipos de radiación ionizante, como partículas alfa, beta, neutrones y rayos gamma, a partir del efecto de ionización de un gas contenido en su interior. Para su operación, el voltaje del detector se ajusta de modo que funcione dentro de la región Geiger–Müller, donde una sola ionización primaria es suficiente para producir una descarga eléctrica completa y detectable.[1]
+	
+    \begin{enumerate}
+		\item [II.] \textit{Principio de funcionamiento del tubo Geiger–Müller}
+	\end{enumerate}
+
+    El tubo Geiger–Müller consiste en un cilindro metálico conductor que actúa como cátodo y contiene una pequeña cantidad de gas a baja presión. A lo largo de su eje se sitúa un alambre metálico fino, que funciona como ánodo. Entre el cilindro y el alambre se establece una diferencia de potencial elevada, de tal manera que el sistema se comporta eléctricamente de forma similar a un capacitor cilíndrico.\\
+
+    Cuando una partícula ionizante o un fotón de alta energía atraviesa la pared del tubo, ioniza algunos átomos del gas. Los electrones liberados son acelerados hacia el ánodo, mientras que los iones positivos se desplazan hacia el cátodo. Bajo las condiciones de operación del tubo, este proceso desencadena una avalancha electrónica, produciendo una descarga eléctrica breve pero intensa, independiente de la energía inicial de la radiación incidente.\\
+
+   La respuesta del detector frente a este proceso depende directamente del voltaje aplicado al tubo. Experimentalmente, esta dependencia se describe mediante la curva característica del contador Geiger–Müller, que representa la relación entre el voltaje aplicado y la tasa de conteo registrada. A medida que el voltaje se incrementa, el detector atraviesa distintas regiones de operación, desde la recombinación de pares iónicos a bajos voltajes, hasta la región Geiger–Müller, en la cual la descarga es completa para cada evento y la tasa de conteo se mantiene prácticamente constante frente a pequeñas variaciones de la tensión aplicada.\\
+
+    La descarga generada se manifiesta como un impulso eléctrico, el cual es amplificado y registrado por el sistema de conteo. En consecuencia, la magnitud física medida experimentalmente corresponde a la tasa de conteo, definida como el número de pulsos registrados por unidad de tiempo:
+
+    \begin{equation}
+     R=\frac{N}{T}
+     \label{}
+\end{equation}
+
+     donde N es el número total de eventos detectados durante el intervalo de tiempo t. Debido a que cada evento ionizante produce una descarga completa, el tubo Geiger–Müller es especialmente útil para la detección de radiación ionizante, aunque no permite la discriminación energética de las partículas incidentes.[2]
+	
+	\begin{enumerate}
+		\item [III.] \textit{Avalancha Townsend}
+	\end{enumerate}
+    La avalancha de Townsend es un proceso de ionización en gases que ocurre cuando los electrones libres, generados por una ionización inicial, son acelerados por un campo eléctrico intenso. Al colisionar con las moléculas del gas, estos electrones producen nuevas ionizaciones, originando una multiplicación de portadores de carga. Este fenómeno permite la amplificación de la señal eléctrica en detectores gaseosos de radiación.\\
+    Este proceso puede describirse mediante una relación exponencial entre el número de electrones y la distancia recorrida en el gas:
+\begin{equation}
+     n(x) =n_0 e^{\alpha x}
+     \label{}
+\end{equation}
+    
+    En la región proporcional, la amplificación es controlada y proporcional a la ionización primaria, mientras que a voltajes más altos puede producirse una descarga generalizada, como en los tubos Geiger-Müller.[3]
+\begin{figure}[t]
+    \centering 
+    \includegraphics[width=0.8\textwidth]{Avalanch.jpg}
+    \caption{Principio de funcionamiento de un contador Geiger-Müller. }
+    \label{AmpNE}
+\end{figure}
+
+
+    \begin{enumerate}
+		\item [IV.] \textit{Descarga Geiger}
+	\end{enumerate}
+
+    La descarga Geiger es un proceso de ionización gaseosa que se inicia a partir de una avalancha de Townsend provocada por un electrón primario generado por radiación ionizante. Durante esta avalancha se producen ionizaciones secundarias y moléculas excitadas que, en escalas de tiempo del orden de nanosegundos, regresan a su estado fundamental mediante la emisión de fotones en las regiones visible o ultravioleta; estos fotones inducen ionizaciones adicionales a distancia y permiten la propagación de la descarga a lo largo del ánodo. Para un voltaje fijo aplicado al detector, la descarga siempre se extingue en el mismo punto, ya que la acumulación de iones positivos reduce el campo eléctrico local por debajo del valor mínimo necesario para mantener la multiplicación electrónica, dando como resultado pulsos de carga prácticamente constantes e independientes del número de ionizaciones primarias producidas por la radiación incidente.[4]
+ \begin{enumerate}
+		\item [V.] \textit{Voltaje de operacion}
+	\end{enumerate}
+  El voltaje de operación es el valor de tensión aplicado al contador Geiger–Müller que garantiza un funcionamiento estable, correcto y reproducible. Este voltaje se selecciona dentro de la región de la meseta de la curva característica, donde la tasa de conteo es prácticamente independiente de pequeñas variaciones en la tensión aplicada y de la energía de la radiación incidente. Operar el detector en esta región asegura que cada evento ionizante genere una descarga completa y detectable, evitando tanto la recombinación de cargas a bajos voltajes como la descarga continua del gas a voltajes excesivamente altos.\\
+
+  Experimentalmente, el voltaje de operación $V_0$ se determina a partir de la curva de conteo en función del voltaje, eligiendo un valor intermedio de la meseta, alejado de sus extremos para garantizar estabilidad. Además, a este voltaje quedan definidos los principales tiempos característicos del pulso tiempo de subida $t_s$, tiempo de bajada $t_b$, tiempo muerto $t_m$ y tiempo de recuperación $t_r$, los cuales influyen directamente en la respuesta temporal y en la confiabilidad de las mediciones del detector.[2]
+    
+    \begin{enumerate}
+		\item [VI.] \textit{Tiempo Muerto}
+	\end{enumerate}
+    El tiempo muerto en un contador Geiger-Müller es el intervalo posterior a la detección de un evento durante el cual el detector es incapaz de registrar una nueva radiación ionizante, debido a los procesos internos de recuperación del gas contenido en el tubo. Cuando la radiación ionizante ingresa al detector, ya sea a través de la ventana o de las paredes del tubo, produce ionizaciones y excitaciones en las moléculas del gas como resultado de colisiones primarias y secundarias.\\\\
+    Los electrones liberados son acelerados por el intenso campo eléctrico establecido entre los electrodos y se desplazan rápidamente hacia el ánodo, donde se incorporan al circuito externo del contador, permitiendo la medición del pulso eléctrico asociado al evento mediante la caída de voltaje en una resistencia.\\
+    
+    Posteriormente, los iones positivos generados en la descarga van lentamente hacia el cátodo, formando una nube de carga positiva que reduce temporalmente el campo eléctrico cercano al ánodo. Durante este proceso de deriva y recombinación iónica, el campo eléctrico no alcanza el valor mínimo necesario para iniciar una nueva avalancha de ionización, lo que impide la detección de eventos adicionales. Este intervalo, conocido como tiempo muerto, suele tener una duración del orden de 200 a 400 microsegundos,dependiendo del diseño y las condiciones del detector. \\
+
+    El efecto del tiempo muerto se manifiesta como una subestimación de la tasa real de eventos. Para un contador Geiger–Müller que se comporta como un sistema no paralizable, la relación entre la tasa observada y la tasa real está dada por:
+\begin{equation}
+     R_{real}=\frac{R_{obs}}{1-R_{obs} \tau}
+     \label{}
+\end{equation}
+    
+     Además, el tiempo de recuperación corresponde al intervalo posterior al tiempo muerto requerido para que el campo eléctrico se restablezca completamente, permitiendo nuevamente el registro de pulsos de máxima amplitud. Este proceso está determinado principalmente por el tiempo de deriva de los iones positivos hacia el cátodo, lo cual prolonga la recuperación total del detector.[5]
+    
+\begin{figure}[t]
+    \centering 
+    \includegraphics[width=0.8\textwidth]{tiempo muerto.png}
+    \caption{Tiempo muerto y tiempo de recuperación de un tubo
+Geiger-Müller.}
+    \label{AmpNE}
+\end{figure}
+    
+
+    \begin{enumerate}
+		\item [VII.] \textit{Meseta}
+	\end{enumerate}
+    La meseta en un contador tubo Geiger–Müller es el rango de voltaje en el que el detector opera de forma estable y confiable; en esa región, pequeñas variaciones en la tensión aplicada no afectan significativamente la tasa de cuentas, por lo que el registro de eventos de radiación sigue siendo preciso y repetible. \\
+    La tasa de conteo para cada valor del voltaje aplicado se define como:
+    \begin{equation}
+     R_{V}=\frac{N(V)}{t}
+     \label{}
+\end{equation}
+    
+    Donde $N(V)$ es el número de eventos registrados durante el tiempo de medición $t$.Cuando el voltaje aplicado es demasiado bajo, los electrones e iones generados por la radiación pueden recombinarse antes de generar una avalancha, dando señales débiles que no alcanzan el umbral de detección. Al aumentar la tensión, los electrones adquieren suficiente energía para provocar ionizaciones secundarias, produciendo avalanchas que amplifican la señal y permiten detectar con certeza la radiación incidente.\\
+    
+    En la meseta, la señal generada por cada evento ya no depende del número de ionizaciones primarias ni de la energía de la radiación incidente, ya que cada avalancha produce una descarga completa a lo largo del ánodo, de modo que la amplitud del pulso se vuelve prácticamente constante y uniforme para diferentes energías.\\
+    Un criterio cuantitativo para caracterizar la calidad de la meseta es la pendiente de la curva de conteo, la cual se expresa como el incremento porcentual de la tasa de cuentas por unidad de voltaje:
+
+     \begin{equation}
+     S=\frac{R(V_2)-R(V_1)}{R(V_1)}\times\frac{100}{V_2-V_1}
+     \label{}
+\end{equation} 
+
+
+    Sin embargo, exceder el límite superior de la meseta puede llevar al inicio de una descarga continua del gas, incluso sin radiación externa, lo que impide medir correctamente los eventos y puede dañar el contador. \\
+    
+    Por estas razones, la meseta define el punto de operación ideal para un contador Geiger-Müller, garantizando estabilidad, repetibilidad y confiabilidad en las mediciones de radiación ionizante.[6]
+\begin{figure}[t]
+    \centering 
+    \includegraphics[width=0.8\textwidth]{meseta.png}
+    \caption{Formación de pares iónicos y comportamiento de la corriente de ionización en función del voltaje aplicado en la región de meseta del contador Geiger–Müller.}
+    \label{AmpNE}
+\end{figure}
+
+    \begin{enumerate}
+		\item [VIII.] \textit{Radiacion de fondo}
+	\end{enumerate}
+    La radiación de fondo es la tasa de cuentas registrada por un contador Geiger-Müller en ausencia de una fuente radiactiva intencional, y corresponde a la radiación presente de manera natural en el entorno. Este fondo está compuesto principalmente por radiación gamma ambiental, radiación cósmica y sus productos secundarios, así como por contribuciones internas del propio detector, tales como emisiones debidas a impurezas en los materiales o descargas espurias del tubo.La radiación de fondo es la tasa de cuentas registrada por un contador Geiger-Müller en ausencia de una fuente radiactiva intencional, y corresponde a la radiación presente de manera natural en el entorno. Este fondo está compuesto principalmente por radiación gamma ambiental, radiación cósmica y sus productos secundarios, así como por contribuciones internas del propio detector, tales como emisiones debidas a impurezas en los materiales o descargas espurias del tubo.La medición de la radiación de fondo es fundamental en los experimentos de detección de radiación, ya que permite establecer una línea base sobre la cual deben corregirse las mediciones realizadas con fuentes radiactivas. De esta manera, la tasa de conteo asociada exclusivamente a la fuente de interés se obtiene restando la contribución del fondo ambiental, según la expresión:
+    \begin{equation}
+     R_{neto}=R_{medio}-R_{fondo}
+     \label{}
+    \end{equation}
+    Esta corrección garantiza que los resultados experimentales reflejen únicamente la radiación emitida por la fuente analizada, mejorando la precisión y confiabilidad de las mediciones.[6]
+    
+    \begin{enumerate}
+		\item [IX.] \textit{Conteo de Poisson}
+	\end{enumerate}
+    Aunque la actividad de una muestra radiactiva puede suponerse constante durante el tiempo de la práctica, el número de desintegraciones registradas por unidad de tiempo no es fijo, sino que fluctúa alrededor de un valor medio estadístico. Estas fluctuaciones son inherentes al carácter aleatorio del proceso de desintegración nuclear y, por tanto, al conteo realizado por un detector Geiger–Müller.\\
+    Cuando se realizan mediciones repetidas del número de cuentas durante un intervalo de tiempo fijo $t$, el número de eventos detectados sigue una distribución de Poisson, siempre que se cumplan las siguientes condiciones:
+    1.- Todos los núcleos tienen la misma probabilidad de desintegrarse,\\
+
+   2.-Las desintegraciones son procesos independientes entre sí\\
+
+   3.-La probabilidad de desintegración es constante en intervalos de tiempo iguales\\
+
+   4.-El número total de eventos es suficientemente grande para que el promedio estadístico sea significativo.\\
+   
+   Bajo estas condiciones, la probabilidad de detectar $x$ eventos en un intervalo de tiempo $t$, cuando el número medio de cuentas es $μ$, está dada por la distribución de Poisson:
+\begin{equation}
+     P(x)=\frac{\mu^x e^{-\mu}}{x!}
+     \label{}
+    \end{equation}
+   
+   donde $μ$ representa el número promedio de cuentas registradas en el tiempo $t$. Esta distribución es fundamental para el análisis estadístico de los datos experimentales, ya que permite estimar las incertidumbres asociadas a las mediciones de radiación y evaluar la reproducibilidad del sistema de detección.
+
+
+
+	\section{METODOLOGIA}
+     \begin{enumerate}
+		\item [I.] \textit{Comparación estadística entre el equipo inglés y el equipo francés}
+	\end{enumerate}
+    En la primera parte de la práctica se realizó un estudio estadístico del conteo de radiación utilizando un contador Geiger--Müller acoplado a un Scaler Timer. El detector se conectó directamente al contador y se fijó un intervalo de  de un minuto. Se tomaron  20 mediciones, registrando en cada una el número de cuentas por minuto. Estas mediciones se realizaron con dos configuraciones experimentales distintas (equipo inglés y equipo francés), con el propósito de analizar la estabilidad del conteo y comparar la dispersión asociada a cada uno.
+
+     \begin{enumerate}
+		\item [II.] \textit{Caracterización del detector Geiger–Müller}
+	\end{enumerate}
+    El montaje experimental se realizó utilizando un contador Geiger–Müller acoplado a su electrónica asociada. En primer lugar, el tubo Geiger–Müller se conectó a la caja acopladora, la cual a su vez se conecto con la fuente de alto voltaje. Asi mismo, la señal de salida de la caja acopladora se conectó al osciloscopio, esto para monitorear la forma y la amplitud del pulso eléctrico generado por el detector y verificar que no excediera los $2 V$, Fig.[4]\\
+    
+    Una vez realizada esta calibración inicial, se procedió a ajustar el voltaje aplicado al tubo, identificando el rango de operación del detector. Se utilizaron valores de voltaje entre 690 V y 930 V, correspondientes a los límites inferior y superior del funcionamiento seguro del contador, con el fin de caracterizar su respuesta en función del voltaje aplicado y determinar el rango de operación adecuado.\\
+    
+    Luego, la salida de la caja acopladora se conectó al amplificador, verificando  con el osciloscopio que la amplitud de la señal amplificada no excediera los $10 V$. Se observaron que las señales de la caja acopladora eran negativas y que dicha polaridad se mantenía a la salida del amplificador.\\ 
+    
+    Y asi, la señal amplificada se conectó al analizador (discriminador), donde se obtuvo un pulso de forma cuadrada, adecuado para el conteo. La salida del analizador se conecto al Scalar Timer, el cual registra el número de pulsos en intervalos de tiempo (60 segundos), permitiendo así la medición de la tasa de conteo asociada a la radiación detectada por el tubo Geiger–Müller.\\
+    
+    Luego se procedió a la caracterización del detector mediante observación  de las señales en el osciloscopio.\\
+    El tiempo muerto se determinó a partir de la medición del intervalo cresta a cresta entre pulsos consecutivos.\\
+    El tiempo de recuperación, definido como el intervalo necesario para que el pulso recupere su amplitud máxima, se midió también de manera cresta a cresta.\\
+    Asimismo, se determinaron los tiempos de subida y bajada del pulso. El tiempo de subida, medido entre el 10\% y el 90\% de la amplitud máxima, mientras que el tiempo de bajada, medido entre el 90\% y el $10\%$ de la amplitud.\\
+    Finalmente, se repitieron estas mediciones con el amplificador conectado.\\
+    
+    El equipo utilizado para la primera caracterización se muestra en las Tablas 1 y 2, mientras que para la segunda caracterización se empleó el equipo mostrado en las Tablas 3 y 4.
+
+    
+\begin{table}[t]
+	\centering
+	\caption{Equipo Frances primera caracterización }
+	\resizebox{\columnwidth}{!}{%
+	\begin{tabular}{cccc}
+		\toprule
+		\textbf{Equipo} & \textbf{Marca} & \textbf{Modelo} & \textbf{Número de serie} \\
+		\midrule
+		Osciloscopio & CRC & Tektronics & 7704A \\
+		Fuente de Alto Voltaje & CRC & MHT-II & L-877 \\
+		Amplificador & CRC & MAP-II & M-778 \\
+		Discriminador & CRC & MSA-II & M-471 \\
+		Contador & CRC & M6D-II & G-290 \\
+		Geiger–Müller & LUDLUM & 44-7 & PR301101 \\
+		Multímetro & STEREN & MUL-005 & 47286 \\
+		\bottomrule
+	\end{tabular}%
+	}
+\end{table}
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}[
+		block/.style={draw, rectangle, minimum width=2.2cm, minimum height=0.8cm, align=center},
+		line/.style={-, thick},
+		scale=0.8,
+		every node/.style={scale=0.8}
+		]
+		
+		% Nodos principales
+		\node[block] (gm) at (0,0) {Tubo\\Geiger--Müller};
+		\node[block] (cc) at (2.7,0) {Caja\\Acopladora};
+		\node[block] (amp) at (5.4,-1.2) {Amplificador};
+		\node[block] (disc) at (7.9,-1.2) {Discriminador};
+		\node[block] (cnt) at (10.4,-1.2) {Contador};
+
+		% Fuente de alto voltaje
+		\node[block] (hv) at (5.4,1.2) {Fuente de\\Alto Voltaje};
+		
+		% Conexiones (líneas)
+		\draw[line] (gm) -- (cc);
+		\draw[line] (hv) -- (cc);
+		\draw[line] (cc) -- (amp);
+		\draw[line] (amp) -- (disc);
+		\draw[line] (disc) -- (cnt);
+		
+	\end{tikzpicture}
+	\caption{Diagrama esquemático del sistema de detección con contador Geiger--Müller.}
+	\label{fig:geiger_sistema_compacto}
+\end{figure}
+
+
+
+
+
+
+\begin{table}[t]
+	\centering
+	\caption{Equipo Ingles primera caracterización}
+	\resizebox{\columnwidth}{!}{%
+	\begin{tabular}{cccc}
+		\toprule
+		\textbf{Equipo} & \textbf{Marca} & \textbf{Modelo} & \textbf{Número de serie} \\
+		\midrule
+		Osciloscopio & CRC & Tektronics & 7704A \\
+		Fuente de Alto Voltaje & CRC & MHT-II & L-877 \\
+		Amplificador & CANBERRA& 2012 & 4821159 \\
+		Analyser & NE & 4002 & 610 \\
+		Scaler & NE & 4613 & 257 \\
+        Timer & NE & 4612 & 257 \\
+		Geiger–Müller & LUDLUM & 44-7 & PR301101 \\
+		Multímetro & STEREN & MUL-005 & 47286 \\
+		\bottomrule
+	\end{tabular}%
+	}
+\end{table}
+
+
+\begin{table}[t]
+	\centering
+	\caption{Equipo Ingles segunda caracterización }
+	\resizebox{\columnwidth}{!}{%
+	\begin{tabular}{cccc}
+		\toprule
+		\textbf{Equipo} & \textbf{Marca} & \textbf{Modelo} & \textbf{Número de serie} \\
+		\midrule
+		Osciloscopio & KENWOOD & CS-1065 & 8040054 \\
+		Fuente de Alto Voltaje & CANBERRA & 3002 & -- \\
+		Amplificador/Discriminador& NE & 4630 & -- \\
+		Contador & NE & 4613 & -- \\
+		Timer & NE & 4611 & -- \\
+        Geiger–Mülle & Eberline & HP-190 & 4 \\
+		Multímetro & STEREN & MUL-005 & 47286 \\
+		\bottomrule
+	\end{tabular}%
+	}
+\end{table}
+
+
+\begin{table}[H]
+	\centering
+	\caption{Equipo Frances segunda caracterización }
+	\resizebox{\columnwidth}{!}{%
+	\begin{tabular}{cccc}
+		\toprule
+		\textbf{Equipo} & \textbf{Marca} & \textbf{Modelo} & \textbf{Número de serie} \\
+		\midrule
+		Osciloscopio & KENWOOD & CS-1065 & 8040054 \\
+		Fuente de Alto Voltaje & CRC & MHT-II & 261 \\
+		Amplificador & CRC & MAP-II & 242 \\
+		Discriminador & CRC & MSA-II & 255 \\
+		Contador & CRC & M6D-II & 254 \\
+		Geiger–Müller & Eberline & HP & 4 \\
+		Multímetro & STEREN & MUL-005 & 47286 \\
+		\bottomrule
+	\end{tabular}%
+	}
+\end{table}
+
+	\vspace{0.3cm}
+	
+	\section{RESULTADOS}
+\subsection{Conteo de Poisson}
+\begin{table}[H]
+    \centering
+    \caption{DATOS EXPERIMENTALES CON AMPLIFICADOR CRC MODELO MAP-II SERIE M-778 }
+    \begin{threeparttable}
+    \begin{tabular}{c c}
+        \hline
+        \textbf{Medición} & \textbf{Conteos por minuto} \\ [0.5ex] 
+        \hline
+            1  & 9857  \\
+            2  & 9733  \\
+            3  & 9741  \\
+            4  & 9760  \\
+            5  & 9691  \\
+            6  & 9670  \\
+            7  & 9784  \\
+            8  & 9575  \\
+            9  & 9735  \\
+            10 & 9654  \\
+            11 & 10225 \\
+            12 & 10036 \\
+            13 & 10072 \\
+            14 & 10051 \\
+            15 & 9785  \\
+            16 & 9843  \\
+            17 & 9935  \\
+            18 & 10070 \\
+            19 & 9916  \\
+            20 & 9967  \\
+            [1ex]
+        \hline
+    \end{tabular}
+
+    \end{threeparttable}\label{TabPulsos778}
+\end{table}
+
+\begin{figure}[h]
+        \centering
+    \includegraphics[width=0.9\linewidth]{PulsosFra.png}
+    \caption{Resultados del amplificador CRC modelo MAP-II serie M-778. Dataos de la tabla \ref{TabPulsos778}}
+    \label{fig:Pulsos778}
+\end{figure}
+
+\begin{table}[H]
+    \centering
+    \caption{DATOS EXPERIMENTALES DEL AMPLIFICADOR CANBERRA MODELO 2012 SERIE 48211589}
+    \begin{threeparttable}
+    \begin{tabular}{c c}
+        \hline
+        \textbf{Medición} & \textbf{Conteos por minuto} \\ [0.5ex] 
+        \hline
+            1  & 9869  \\
+            2  & 9927  \\
+            3  & 9837  \\
+            4  & 9825  \\
+            5  & 9860  \\
+            6  & 9807  \\
+            7  & 10030 \\
+            8  & 9883  \\
+            9  & 9890  \\
+            10 & 9855  \\
+            11 & 9872  \\
+            12 & 9804  \\
+            13 & 9897  \\
+            14 & 9759  \\
+            15 & 9939  \\
+            16 & 9833  \\
+            17 & 9854  \\
+            18 & 9796  \\
+            19 & 9881  \\
+            20 & 9988  \\
+            [1ex]
+        \hline
+    \end{tabular} \label{Tab:Pulsos2012}
+    \end{threeparttable}
+    \end{table}
+    
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=1\linewidth]{PulsosIng.png}
+        \caption{Resultados experimentales del amplificador CANBERRA modelo 2012 serie 48211589. Datos de la tabla \ref{Tab:Pulsos2012}}
+        \label{fig:Pulsos2012}
+    \end{figure}
+
+De los datos de la tabla \ref{TabPulsos778} podemos observar que para el equipo frances los datos de conteos por minuto se ajustan de forma relativamente consistente al valor teorico de 9600 conteos/min obtenido mediate el ratemeter, considerando barras de erro de $3\sigma$ donde la desviación estandar tiene un valor de
+\begin{equation}
+    \sigma = 172.5
+\end{equation}
+por otra parte su valor de $\chi^2$ es de 
+\begin{equation}
+    \chi^2 = 0.02 << 19
+\end{equation}
+lo cual nos indica que los valores de $\chi^2$ es valido.
+
+De los datos de la Tabla \ref{Tab:Pulsos2012} podemos observar que para el equipo inglés los valores de conteo por minuto no se ajustan de forma adecuada al valor teórico de $9600$ conteos/min obtenido mediante el ratemeter. Al considerar barras de error de $3\sigma$, donde la desviación estándar tiene un valor de
+\begin{equation}
+    \sigma = 64.95
+\end{equation}
+se aprecia que hay muchos valores que no entran dentro del intervalo requerido. \\
+
+Por otra parte, el valor de $\chi^2$ obtenido para el ajuste a una constante es
+\begin{equation}
+    \chi^2 = 0.0167.
+\end{equation}
+
+Este valor es considerablemente menor que el número de grados de libertad correspondiente, lo cual indica que la dispersión real de los datos es mucho menor que la incertidumbre asumida.
+
+    \subsection{Meseta Geiger}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{c c}
+\hline
+\textbf{Voltaje $V$} & \textbf{Conteo por minuto} \\
+\hline
+700 & 5378  \\
+720 & 7954  \\
+740 & 8921  \\
+750 & 12133 \\
+760 & 19550 \\
+770 & 19876 \\
+780 & 19945 \\
+790 & 20429 \\
+800 & 22089 \\
+810 & 21868 \\
+820 & 21032 \\
+830 & 21523 \\
+840 & 22853 \\
+850 & 24320 \\
+860 & 25001 \\
+870 & 25886 \\
+880 & 25866 \\
+\hline
+\end{tabular}
+\caption{DATOS EXPERIMENTALES DE VOLTAJE VS. CONTEO POR MINUTO PARA EL EQUIPO FRANCÉS CON EL TUBO GEIGER SERIE 4.}
+\label{Tab:Tubo4}
+\end{table}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{TuboVfr.png}
+    \caption{Resultados experimentales para el equipo francés con el tubo geiger serie 4. Datos de la tabla \ref{Tab:Tubo4}}
+    \label{fig:tubogeiger4}
+\end{figure}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\linewidth]{MesetaVfr.png}
+        \caption{Sección de la meseta Geiger para el tubo Geiger serie 4 de la figura \ref{fig:tubogeiger4}}
+        \label{fig:meseta4}
+    \end{figure}
+De la figura \ref{fig:tubogeiger4} podemos notar que los datos de la meseta geiger tenemos un ajuste lineal de 
+\begin{equation}
+    y=58.03x -25316
+\end{equation}
+con una desviación estándar de 
+\begin{equation}
+    \sigma = 2117.94
+\end{equation}
+y un valor de $\chi^2$ de
+\begin{equation}
+    \chi^2 = 1.96
+\end{equation}
+lo cual nos indica que la sección seleccionada para la meseta Geiger es adecuada y con ello se puede obtener el voltaje optimo dado por,
+\begin{equation}
+    V_o = \frac{880+770}{2}=825
+\end{equation}
+
+
+Ahora, calculando el slope, tenemos que $\hat{C_1}=58.03(880) -25316=25750.4$ y $\hat{C_2}=58.03(770) -25316=19367.1=19367.1$ y con esto podemos calcular el slope dado por 
+\begin{equation}
+    \frac{\frac{\hat{C_1}-\hat{C_2}}{\hat{C_1}}}{0.01(V_2-V_1)}\times 100\%=\frac{\frac{25750.4-19367.1}{25750.4}}{0.01(880-770)}\times100\% = 22.53\%
+\end{equation}
+Notemos que el valor del slope es mayor al 10\% por lo cual podríamos considerar que las mediciones no son correctas o por lo contrario el tubo Geiger-Müler no esta en condiciones adecuadas de operación.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{c c}
+\hline
+\textbf{Voltaje $V$} & \textbf{Conteo por minuto} \\
+\hline
+765  & 7270  \\
+785  & 8172  \\
+805  & 9004  \\
+815  & 9298  \\
+825  & 9287  \\
+835  & 9412  \\
+845  & 9785  \\
+855  & 9813  \\
+865  & 10025 \\
+875  & 10177 \\
+885  & 10285 \\
+895  & 10302 \\
+905  & 10613 \\
+915  & 10591 \\
+925  & 10570 \\
+935  & 10613 \\
+945  & 10875 \\
+955  & 10957 \\
+965  & 11046 \\
+975  & 11108 \\
+985  & 11259 \\
+995  & 11283 \\
+1005 & 11529 \\
+1015 & 11442 \\
+1025 & 11706 \\
+1035 & 11605 \\
+1070 & 12021 \\
+\hline
+\end{tabular}
+\caption{DATOS EXPERIMENTALES DE VOLTAJE VS. CONTEO POR MINUTO PARA EL MÓDULO INGLÉS CON EL TUBO GEIGER SERIE 4.}
+\label{Tab:Ing4}
+\end{table}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{TuboVIng.png}
+    \caption{Resultados experimentales de la tabla \ref{Tab:Ing4}}
+    \label{fig:Ing4}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{MesetaVINg.png}
+    \caption{Sección de la meseta Geiger de la figura \ref{fig:Ing4}}
+    \label{fig:MesetaIng4}
+\end{figure}
+
+De la figura \ref{fig:Ing4} podemos notar que los datos de la meseta geiger tenemos un ajuste lineal de 
+\begin{equation}
+    y=10.94x +450.51
+\end{equation}
+con una desviación estándar de 
+\begin{equation}
+    \sigma = 818.8
+\end{equation}
+y un valor de $\chi^2$ de
+\begin{equation}
+    \chi^2 = 0.57
+\end{equation}
+lo cual nos indica que la sección seleccionada para la meseta Geiger es adecuada y con ello se puede obtener el voltaje optimo dado por,
+
+
+\begin{equation}
+    V_o = \frac{1070+805}{2}=937 
+\end{equation}
+Ahora, calculando el slope, tenemos que $\hat{C_1}=10.94(1070) +450.51=12156.31$ y $\hat{C_2}=10.94(805) +450.51=9257.21$ y con esto podemos calcular el slope dado por 
+\begin{equation}
+    \frac{\frac{\hat{C_1}-\hat{C_2}}{\hat{C_1}}}{0.01(V_2-V_1)}\times 100\%=\frac{\frac{12156.31-9257.21}{12156.31}}{0.01(1070-805)}\times100\% = 8.99\%
+\end{equation}
+En este caso el slope es menor al 10\% por lo cual podemos suponer que el tubo Geiger-Müler esta optimo para su uso en el laboratorio. Con estos datos podemos notar que en el caso de los datos de la \ref{Tab:Tubo4} hay errores de medición o en el equipo de trabajo en si.
+    \begin{table}[H]
+\centering
+\begin{tabular}{c c}
+\hline
+\textbf{Voltaje $V$} & \textbf{Conteo por minuto} \\
+\hline
+        690 & 17343 \\
+        720 & 17143 \\
+        750 & 17810 \\
+        780 & 18059 \\
+        810 & 21544 \\
+        820 & 25458 \\
+        830 & 26615 \\
+        840 & 28583 \\
+        850 & 28921 \\
+        860 & 29841 \\
+        870 & 30137 \\
+        880 & 30977 \\
+        890 & 30916 \\
+        900 & 31036 \\
+        910 & 31299 \\
+        920 & 31221 \\
+        930 & 31512 \\
+        940 & 31883 \\
+\hline
+\end{tabular}
+\caption{DATOS EXPERIMENTALES DE VOLTAJE VS CONTEO POR MINUTO DEL EQUIPO FRANCÉS CON EL TUBO GEIGER SERIE PR301101.}
+\label{Tab:GeigerFrPR}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{TuboNuevofr.png}
+    \caption{Resultados experimentales de la tabla \ref{Tab:GeigerFrPR}}
+    \label{fig:GeigerFrPR}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{MesetaNfr.png}
+    \caption{Sección de la meseta Geiger de la figura \ref{fig:GeigerFrPR}}
+    \label{fig:MesetaFrPr}
+\end{figure}
+
+
+De la figura \ref{fig:GeigerFrPR} podemos notar que los datos de la meseta geiger tenemos un ajuste lineal de 
+\begin{equation}
+    y=30.35x +3561.97
+\end{equation}
+con una desviación estándar de 
+\begin{equation}
+    \sigma = 102048
+\end{equation}
+y un valor de $\chi^2$ de
+\begin{equation}
+    \chi^2 = 1.27
+\end{equation}
+lo cual nos indica que la sección seleccionada para la meseta Geiger es adecuada y con ello se puede obtener el voltaje optimo dado por,
+
+\begin{equation}
+    V_o = \frac{940+840}{2}=890
+\end{equation}
+Ahora, calculando el slope, tenemos que $\hat{C_1}=30.35(940) +3561.97=32090.97$ y $\hat{C_2}=30.35(840) +3561.97=29055.97$ y con esto podemos calcular el slope dado por 
+\begin{equation}
+    \frac{\frac{\hat{C_1}-\hat{C_2}}{\hat{C_1}}}{0.01(V_2-V_1)}\times 100\%=\frac{\frac{32090.97-29055.97}{32090.97}}{0.01(840-740)}\times100\% = 9.45\%
+\end{equation}
+con estos resultados, notemos que el slope es menor al 10\% por lo cual el tubo Geiger-Müler cumple con las caracteristicas adecuadas. 
+
+\begin{table}[H]
+\centering
+\begin{tabular}{c c}
+\hline
+\textbf{Voltaje $V$} & \textbf{Conteo por minuto} \\
+\hline
+760 & 5369 \\
+780 & 5558 \\
+800 & 5629 \\
+820 & 5775 \\
+840 & 5867 \\
+860 & 5985 \\
+880 & 6136 \\
+900 & 6200 \\
+910 & 6302 \\
+920 & 6475 \\
+930 & 6595 \\
+\hline
+\end{tabular}
+\caption{DATOS EXPERIMENTALES DE VOLTAJE VS CONTEO POR MINUTO DEL EQUIPO INGLÉS CON EL TUBO GEIGER SERIE PR301101.}
+\label{Tab:IngPR}
+\end{table}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\linewidth]{TuboNuevoIng.png}
+    \caption{Resultados de la tabla \ref{Tab:IngPR}}
+    \label{fig:IngPR}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\linewidth]{MesetaNING.png}
+    \caption{Sección de la meseta Geiger de los datos obtenidos mediante la tabla \ref{Tab:IngPR}}
+    \label{fig:MesetaIngPR}
+\end{figure}
+
+De la figura \ref{fig:IngPR} podemos notar que los datos de la meseta geiger tenemos un ajuste lineal de 
+\begin{equation}
+    y=6.57x +376.82
+\end{equation}
+con una desviación estándar de 
+\begin{equation}
+    \sigma = 372.7
+\end{equation}
+y un valor de $\chi^2$ de
+\begin{equation}
+    \chi^2 = 0.23
+\end{equation}
+lo cual nos indica que la sección seleccionada para la meseta Geiger es adecuada y con ello se puede obtener el voltaje optimo dado por,
+
+\begin{equation}
+    V_o = \frac{930+760}{2}=845
+\end{equation}
+
+Ahora, calculando el slope, tenemos que $\hat{C_1}=6.57(930) +376.82=6486.92$ y $\hat{C_2}=6.57(760) +376.82=5370.02$ y con esto podemos calcular el slope dado por 
+\begin{equation}
+    \frac{\frac{\hat{C_1}-\hat{C_2}}{\hat{C_1}}}{0.01(V_2-V_1)}\times 100\%=\frac{\frac{6486.92-5370.02}{6486.92}}{0.01(930-760)}\times100\% = 9.94\%
+
+con estos resultados, notemos que el slope es menor al 10\% por lo cual el tubo Geiger-Müler cumple con las caracteristicas adecuadas.
+    
+\subsection{Parámetros temporales del pulso}
+A partir del análisis de las señales registradas en el osciloscopio se determinaron los parámetros temporales del contador Geiger–Müller, sin amplificador y con el amplificador. Las mediciones se realizaron utilizando el osciloscopio.\\
+
+El tiempo muerto del detector se determinó mediante el método cresta a cresta entre pulsos consecutivos, considerando el intervalo entre un pulso de menor amplitud y el siguiente pulso.\\
+
+Asi, se obtuvo un tiempo muerto de: $t_m=0.25 ms$, Este valor se mantuvo constante al repetir la medición con el amplificador conectado. Fig[15] y Fig[19].\\
+
+El tiempo de recuperación sin amplificador se determinó como el intervalo para que el pulso recupere su amplitud máxima después de la descarga, obteniéndose un valor de: $t_r= 0.45\mu s$ Fig[16], y con el amplificador, el tiempo de recuperación aumentó hasta $t_r=0.7 ms$. Fig[20].\\
+Asimismo, se midieron los tiempos de subida y bajada de los pulsos.\\
+
+En el caso de las mediciones sin amplificador, el tiempo de subida ($10\%$ a $90\%$) es de: $t_s=10 \mu s$  Fig[17] y el tiempo de bajada ($90\%$ y $10\%$ ) es de:  $t_b=4 \mu s$ Fig[18].\\
+
+Con el amplificador conectado, el tiempo de subida, medido entre el $10\%$ y el $90\%$ de la amplitud máxima, fue de $t_s=3 \mu s$ Fig[21], mientras que el tiempo de bajada, medido entre el $90\%$ y el $10\%$, fue de $t_b=5 \mu s$ Fig[22]. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{Tiempo muerto.png}
+    \caption{Tiempo muerto del contador Geiger-Müller $t_m=0.25 ms$.}
+    \label{fig:placeholder}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{Tiempo recuperacion.png}
+    \caption{Tiempo de recuperación del pulso del contador Geiger–Müller sin amplificador, correspondiente a $t_r= 0.45\mu s$}
+    \label{fig:placeholder}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{TiempoSubida.png}
+    \caption{Tiempo de subida del pulso del contador Geiger–Müller (10\%–90\% de la amplitud) $t_s=10 \mu s$}
+    \label{fig:placeholder}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{TiempoBajada.png}
+    \caption{Tiempo de bajada del pulso del contador Geiger–Müller (90\%–10\% de la amplitud)$t_b=4 \mu s$}
+    \label{fig:placeholder}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{AmpMuerto.png}
+    \caption{Tiempo muerto del contador Geiger–Müller medido con amplificador $t_m=0.25 ms$}
+    \label{fig:placeholder}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{AmpRecuperacion.png}
+    \caption{Tiempo de recuperación del pulso del contador Geiger–Müller con amplificador $t_r=0.7 ms$}
+    \label{fig:placeholder}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{AmpSubida.png}
+    \caption{Tiempo de subida del pulso del contador Geiger–Müller (10\%–90\% de la amplitud) con amplificador $t_s=3 \mu s$}
+    \label{fig:placeholder}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{AmpBajada.png}
+    \caption{Tiempo de bajada del pulso del contador Geiger–Müller (90\%–10\% de la amplitud) con amplificador  $t_b=5 \mu s$}
+    \label{fig:placeholder}
+\end{figure}
+
+    
+\section{CONCLUSIONES}
+
+
+A partir del estudio estadístico de 20 mediciones consecutivas, se observó que tanto el equipo francés como el equipo inglés presentan variaciones compatibles con la naturaleza aleatoria del proceso de desintegración radiactiva. No obstante, el equipo francés mostró una dispersión significativamente mayor en comparación con el equipo inglés, lo cual se reflejó en valores muy pequeños de $\chi^{2}$ al utilizar barras de error de $3\sigma$. Este resultado indica que, para ambos equipos, las incertidumbres asumidas son mayores que la dispersión real de los datos, lo que conduce a ajustes a una constante estadísticamente buenos. Aun así, los promedios experimentales obtenidos son coherentes con el conteo esperado para la radiación de fondo y para la fuente de Cs-137 empleada durante la práctica.
+
+La curva característica obtenida para los dos tubos Geiger permitió identificar correctamente la región de meseta, observándose una pendiente moderada para el equipo inglés y una pendiente más pronunciada para el equipo francés. Este comportamiento sugiere que el tubo francés opera en una región menos estable frente a variaciones del voltaje aplicado, mientras que el tubo inglés presenta una meseta más uniforme y, por tanto, un voltaje de operación más claro. Los valores de $\chi^{2}$ obtenidos en los ajustes lineales de la meseta fueron pequeños, lo cual confirma que los rangos seleccionados para el análisis son estadísticamente consistentes con un modelo lineal. Al comparar el comportamiento de ambos tubos Geiger se pudo notar que el slope mas pequeño fue del tubo de numero de serie 4, sin embargo, eso solo ocurrio en el equipo ingles, porque al analizar los daros obtenidos por el equipo francés el error es mucho mayor al esperado. Por el contrario, para el tubo geiger serie PR301101 mantuvo valores de voltaje de operación y slope mas estables, manteniendo el slope por debajo del 10\%.
+
+Finalmente, el estudio de los parámetros temporales reveló que los tiempos característicos del tiempo muerto, tiempo de recuperación, tiempo de subida y tiempo de bajada dependen fuertemente de la presencia o ausencia del amplificador. En particular, el amplificador incrementa el tiempo de recuperación y modifica las características de subida y bajada del pulso, lo cual es relevante para la medición de eventos de alta tasa de conteo y para la correcta interpretación de la forma del pulso en el osciloscopio.
+
+	
+	
+	
+	
+	
+	
+	\begin{thebibliography}{100}
+	\bibitem{B1}
+     \small {CERN. (2025). \textit{Cosmic rays discovered 100 years ago. CERN}} https://home.web.cern.ch/news/news/physics/cosmic-rays-discovered-100-years-ago?utm.com
+	
+ 	\bibitem{B2}
+     \small {ORAU \textit{Health Physics Museum. (s.f.). Geiger–Müller tubes. ORAU.}} https://www.orau.org/health-physics-museum/collection/geiger-mueller-tubes/index.html
+
+    \bibitem{B3}
+     \small{Radiation-Dosimetry.org. (s.f.). \textit{¿Qué es la avalancha de Townsend? Definición.} Radiation-Dosimetry.org.} https://www.radiation-dosimetry.org/es/que-es-la-avalancha-de-townsend-definicion/
+     
+    	\bibitem{B4}
+     \small{UNAM. (2020). \textit{La descarga Geiger y nuevas aplicaciones del detector [Tesis].} Universidad Nacional Autónoma de México.} https://tesiunamdocumentos.dgb.unam.mx/pmig2020/0065928/0065928.pdf
+    	\bibitem{B5}
+     \smallT.{Akyurek, M. Yousaf, X. Liu, S. Usman(2014). \textit{[GM counter deadtime dependence on applied voltage, operating temperature and fatigue]. [Radiation Measurements].}} https://www.sciencedirect.com/science/article/pii/S1350448714003539
+    	\bibitem{B6}
+     \small {IFIC. (s.f.). \textit{Geiger–Müller counter: Curva característica / Plateau (geig1.pdf). IFIC.}} https://ific.uv.es/~zuniga/LabFAN/geig1.pdf
+    
+	\end{thebibliography}
+	
+	
+	
+\end{document}
